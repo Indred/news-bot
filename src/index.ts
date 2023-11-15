@@ -1,14 +1,15 @@
-const fs = require("node:fs");
-const path = require("node:path");
-const {
+import fs from "fs";
+import path from "path";
+import {
     Client,
     Collection,
     Events,
     GatewayIntentBits,
     REST,
     Routes,
-} = require("discord.js");
-require("dotenv").config();
+} from "discord.js";
+import { setTimeout } from "timers/promises";
+import { config } from "./config";
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -22,7 +23,7 @@ for (const folder of commandFolders) {
     const commandsPath = path.join(foldersPath, folder);
     const commandFiles = fs
         .readdirSync(commandsPath)
-        .filter((file) => file.endsWith(".ts"));
+        .filter((file: any) => file.endsWith(".ts"));
     for (const file of commandFiles) {
         const filePath = path.join(commandsPath, file);
         const command = require(filePath);
@@ -39,7 +40,7 @@ for (const folder of commandFolders) {
 }
 
 // Construct and prepare an instance of the REST module
-const rest = new REST().setToken(process.env.DISCORD_TOKEN);
+const rest = new REST().setToken(config.DISCORD_TOKEN);
 
 // and deploy your commands!
 (async () => {
@@ -49,11 +50,11 @@ const rest = new REST().setToken(process.env.DISCORD_TOKEN);
         );
 
         // The put method is used to fully refresh all commands in the guild with the current set
-        const data = await rest.put(
+        const data: any = await rest.put(
             Routes.applicationGuildCommands(
                 // change this when you want to deploy globally *DEPLOYMENT*
-                process.env.CLIENT_ID,
-                process.env.GUILD_ID
+                config.CLIENT_ID,
+                config.GUILD_ID
             ),
             { body: commands }
         );
@@ -67,7 +68,7 @@ const rest = new REST().setToken(process.env.DISCORD_TOKEN);
     }
 })();
 
-client.on(Events.InteractionCreate, async (interaction) => {
+client.on(Events.InteractionCreate, async (interaction: any) => {
     if (!interaction.isChatInputCommand()) return;
 
     const command = interaction.client.commands.get(interaction.commandName);
@@ -99,9 +100,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 // When the client is ready, run this code (only once)
 // We use 'c' for the event parameter to keep it separate from the already defined 'client'
-client.once(Events.ClientReady, (c) => {
-    console.log(`Ready! Logged in as ${c.user.tag}`);
+client.once(Events.ClientReady, (c: any) => {
+    console.log(`Ready! Logged in as ${c.user.tag} 🤖`);
 });
 
 // Log in to Discord with your client's token
-client.login(process.env.DISCORD_TOKEN);
+client.login(config.DISCORD_TOKEN);
